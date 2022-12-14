@@ -14,56 +14,108 @@ public class Peticion implements Runnable {
 
 	static ObjectInputStream inObject;
 	static Socket conexion;
-	static String valores[] = { "x", "o" };
 	static String[][] tablero = { { "", "", "" }, { "", "", "" }, { "", "", "" } };
 	static Integer fila, columna, indiceValor;
-	static String valor;
+	static String valor = "O";
+	static String turno;
 
 	public Peticion(Socket conexion) {
 		Peticion.conexion = conexion;
 	}
 
 	public static void enviarObjeto(Socket conexion, int fila, int columna) throws IOException {
-		ObjectOutputStream outObjeto = new ObjectOutputStream(conexion.getOutputStream());
-		Jugada jugada = new Jugada(fila, columna, valor);
-		outObjeto.writeObject(jugada);
-		outObjeto.close();
+
+		try {
+
+			String filaStr = String.valueOf(fila);
+			String columStr = String.valueOf(columna);
+			String turno = "jugador";
+			setTurno(turno);
+
+			OutputStream os = conexion.getOutputStream();
+			PrintWriter pw = new PrintWriter(os);
+			pw.write(filaStr.toString() + "\n");
+			pw.write(columStr.toString() + "\n");
+			pw.write(valor.toString() + "\n");
+			pw.write(getTurno().toString() + "\n");
+			pw.flush();
+
+			System.err.println("SERVIDOR>>> Posiciones enviadas al jugador: Fila -> " + fila + " // Columna -> "
+					+ columna + " // Valor -> " + valor + " // Turno -> " + getTurno());
+
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
 	}
 
-	public static void recibirObjeto(Socket conexion) throws ClassNotFoundException, IOException {
-		ObjectInputStream inObject = new ObjectInputStream(conexion.getInputStream());
-		Jugada jugadaJugador = (Jugada) inObject.readObject();
-		System.err.println("SERVIDOR>>> Objeto recibido del jugador: Fila -> " + jugadaJugador.getFila()
-				+ " // Columna -> " + jugadaJugador.getColumna() + " // Valor -> " + jugadaJugador.getValor());
+	public static void recibirPosiciones(Socket conexion) throws ClassNotFoundException, IOException {
 
-		tablero[jugadaJugador.getFila()][jugadaJugador.getColumna()] = jugadaJugador.getValor();
-		inObject.close();
+		InputStream is = conexion.getInputStream();
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader bf = new BufferedReader(isr);
+
+		String fila = bf.readLine();
+		String columna = bf.readLine();
+		String valor = bf.readLine();
+		String turno = bf.readLine();
+		setTurno(turno);
+
+		System.err.println("SERVIDOR>>> Posiciones recibidas del jugador: Fila -> " + fila + " // Columna -> " + columna
+				+ " // Valor -> " + valor + " // Turno -> " + getTurno());
+
+		int filaInt = Integer.parseInt(fila);
+		int columnInt = Integer.parseInt(columna);
+
+		// Asignar posiciones en el array
+		tablero[filaInt][columnInt] = valor;
 
 		// despues de recibir la tirada del jugador, la maquina continua la partida
-//		maquina(conexion);
+		maquina(conexion);
+
 	}
 
 	public static void maquina(Socket conexion) throws ClassNotFoundException, IOException {
 
-		fila = (int) (Math.random() * 3);
-		columna = (int) (Math.random() * 3);
-		indiceValor = (int) (Math.random() * 2);
-		valor = valores[indiceValor];
-
-		while (tablero[fila][columna].equals("")) {
-
-			System.err.println("SERVIDOR >>> Realiza jugada --> Fila: " + fila + " // Columna: " + columna
-					+ " // Valor: " + valor);
+		boolean posicionEncontrada = false;
+		
+		while (posicionEncontrada == false) {
+			
+			fila = (int) (Math.random() * 3);
+			columna = (int) (Math.random() * 3);
+			
 			if (tablero[fila][columna].equals("")) {
+				System.out.println("SE HA ENCONTRADO UNA POSICION VALIDA!!!!!!");
+				System.err.println("SERVIDOR >>> Realiza jugada --> Fila: " + fila + " // Columna: " + columna);
 				tablero[fila][columna] = valor.toUpperCase();
+				enviarObjeto(conexion, fila, columna);
+				
+				posicionEncontrada = true;
 			} else {
-				fila = (int) (Math.random() * 3);
-				columna = (int) (Math.random() * 3);
+				System.out.println("NO SE HA ENCONTRADO UNA POSICION VALIDA!!!!!!");
 			}
-
-			enviarObjeto(conexion, fila, columna);
-
+			// TODO: AÑADIR OTRA CONDICION!!!
+			
 		}
+			
+
+
+//		while (tablero[fila][columna].equals("")) {
+//
+//			System.err.println("SERVIDOR >>> Realiza jugada --> Fila: " + fila + " // Columna: " + columna);
+//			if (tablero[fila][columna].equals("")) {
+//
+//				tablero[fila][columna] = valor.toUpperCase();
+//				enviarObjeto(conexion, fila, columna);
+//
+//			} else {
+//				fila = (int) (Math.random() * 3);
+//				columna = (int) (Math.random() * 3);
+//			}
+//
+//		}
+
+		// TODO: SI NO SE ENCUENTRA NINGUNA COINCIDENCIA // EVITAR QUE LA APP EXPLOTE :(
 	}
 
 	@Override
@@ -118,7 +170,10 @@ public class Peticion implements Runnable {
 				pw.flush();
 
 				// la maquina recibe la jugada inicial del jugador
-				recibirObjeto(conexion);
+				setTurno("jugador");
+				while (getTurno().equals("jugador")) {
+					recibirPosiciones(conexion);
+				}
 
 			}
 			if (inicioPartida.equals("maquina")) {
@@ -130,7 +185,10 @@ public class Peticion implements Runnable {
 				pw.flush();
 
 				// maquina comienza partida
-				maquina(conexion);
+				setTurno("maquina");
+				while (getTurno().equals("maquina")) {
+					maquina(conexion);
+				}
 
 			}
 
@@ -141,6 +199,14 @@ public class Peticion implements Runnable {
 			System.err.println("SERVIDOR >>> Error.");
 		}
 
+	}
+
+	public static String getTurno() {
+		return turno;
+	}
+
+	public static void setTurno(String turno) {
+		Peticion.turno = turno;
 	}
 
 }

@@ -28,48 +28,69 @@ public class Cliente extends JFrame {
 	private JPanel contentPane;
 	static JTable table;
 	static JButton btn_00, btn_01, btn_02, btn_10, btn_11, btn_12, btn_20, btn_21, btn_22;
-	static JTextField textField;
 	static int fila, columna;
-	static String valor;
+	static String valor = "X";
+	static String turno;
 	static ActionListener actionListenerButton_00, actionListenerButton_01, actionListenerButton_02,
 			actionListenerButton_10, actionListenerButton_11, actionListenerButton_12, actionListenerButton_20,
 			actionListenerButton_21, actionListenerButton_22;
 
 	String[] columnas = { "1", "2", "3" };
-	static String[][] tablero = { { "", "", "" }, { "", "", "" }, { " ", "", "" } };
+	static String[][] tablero = { { "", "", "" }, { "", "", "" }, { "", "", "" } };
 
-	public static void enviarObjeto(Socket conexion) {
+	public static void enviarPosiciones(Socket conexion, int fila, int columna, String valor) {
 		try {
-			ObjectOutputStream outObject = new ObjectOutputStream(conexion.getOutputStream());
-			Jugada jugada = new Jugada();
-			jugada.setFila(getFila());
-			jugada.setColumna(getColumna());
-			jugada.setValor(getValor());
-			outObject.writeObject(jugada);
-			System.out.println("CLIENTE >>> Enviar jugada a servidor -> Fila -> " + jugada.getFila() + " // Columna -> "
-					+ jugada.getColumna() + " // Valor -> " + jugada.getValor());
 
-			outObject.close();
-			conexion.close();
+			String filaStr = String.valueOf(fila);
+			String columStr = String.valueOf(columna);
+			String turno = "maquina";
+			setTurno(turno);
+
+			OutputStream os = conexion.getOutputStream();
+			PrintWriter pw = new PrintWriter(os);
+			pw.write(filaStr.toString() + "\n");
+			pw.write(columStr.toString() + "\n");
+			pw.write(valor.toString() + "\n");
+			pw.write(turno.toString() + "\n");
+			pw.flush();
+
+			System.out.println("SERVIDOR>>> Posiciones enviadas a la maquina: Fila -> " + fila + " // Columna -> "
+					+ columna + " // Valor -> " + valor + " // Turno -> " + getTurno());
+			
+			recibirObjeto(conexion);
+
 		} catch (IOException e1) {
 			e1.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 
 	public static void recibirObjeto(Socket conexion) throws ClassNotFoundException, IOException {
-		ObjectInputStream inObject = new ObjectInputStream(conexion.getInputStream());
-		Jugada jugadaServidor = (Jugada) inObject.readObject();
-		System.out.println("CLIENTE>>> Objeto recibido del servidor: Fila -> " + jugadaServidor.getFila()
-				+ " // Columna -> " + jugadaServidor.getColumna() + " // Valor -> " + jugadaServidor.getValor());
 
-		tablero[jugadaServidor.getFila()][jugadaServidor.getColumna()] = jugadaServidor.getValor();
+		InputStream is = conexion.getInputStream();
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader bf = new BufferedReader(isr);
 
-		String fila = String.valueOf(jugadaServidor.getFila());
-		String columna = String.valueOf(jugadaServidor.getColumna());
+		String fila = bf.readLine();
+		String columna = bf.readLine();
+		String valor = bf.readLine();
+		String turno = bf.readLine();
+		setTurno(turno);
+
+		System.out.println("CLIENTE>>> Posiciones rebibidas del servidor: Fila -> " + fila + " // Columna -> " + columna
+				+ " // Valor -> " + valor + " // Turno -> " + getTurno());
+
+		int filaInt = Integer.parseInt(fila);
+		int columnInt = Integer.parseInt(columna);
+
+		// Asignar posiciones en el array
+		tablero[filaInt][columnInt] = valor;
+
 		String boton = fila + columna;
 
-		inObject.close();
-		maquina(boton, jugadaServidor.getValor(), jugadaServidor.getFila(), jugadaServidor.getColumna());
+		maquina(boton, valor, filaInt, columnInt);
+
 	}
 
 	public static void maquina(String boton, String valor, int fila, int columna) {
@@ -99,120 +120,89 @@ public class Cliente extends JFrame {
 	}
 
 	public static void jugada(int fila, int columna, String valor, Socket conexion) {
-		tablero[fila][columna] = valor;
-		getTextField().setText("");
-		table.setVisible(false);
-		table.setVisible(true);
-		setFila(fila);
-		setColumna(columna);
-		setValor(valor);
-		enviarObjeto(conexion);
-//		try {
-//			recibirObjeto(conexion);
-//		} catch (ClassNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+
+		if (tablero[fila][columna].equals("")) {
+			tablero[fila][columna] = valor;
+			table.setVisible(false);
+			table.setVisible(true);
+			enviarPosiciones(conexion, fila, columna, valor);
+		} else {
+			JOptionPane.showMessageDialog(new JFrame(), "Elige otra casilla para realizar tu jugada", "",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+
 	}
 
 	public static void jugador(Socket conexion) throws IOException {
 		ActionListener actionListenerButton_00 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tablero[0][0].equals("")) {
-					String valor = getTextField().getText();
-					getBtn_00().setText(valor);
-					jugada(0, 0, valor, conexion);
-				}
+				getBtn_00().setText(valor);
+				jugada(0, 0, valor, conexion);
 			}
 		};
 
 		ActionListener actionListenerButton_01 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tablero[0][1].equals("")) {
-					String valor = getTextField().getText();
-					getBtn_01().setText(valor);
-					jugada(0, 1, valor, conexion);
-				}
+				getBtn_01().setText(valor);
+				jugada(0, 1, valor, conexion);
 			}
 		};
 
 		ActionListener actionListenerButton_02 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tablero[0][2].equals("")) {
-					String valor = getTextField().getText();
-					getBtn_02().setText(valor);
-					jugada(0, 2, valor, conexion);
-				}
+				getBtn_02().setText(valor);
+				jugada(0, 2, valor, conexion);
 			}
 		};
 
 		ActionListener actionListenerButton_10 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tablero[1][0].equals("")) {
-					String valor = getTextField().getText();
-					getBtn_10().setText(valor);
-					jugada(1, 0, valor, conexion);
-				}
+				getBtn_10().setText(valor);
+				jugada(1, 0, valor, conexion);
 			}
 		};
 
 		ActionListener actionListenerButton_11 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tablero[1][1].equals("")) {
-					String valor = getTextField().getText();
-					getBtn_11().setText(valor);
-					jugada(1, 1, valor, conexion);
-				}
+				getBtn_11().setText(valor);
+				jugada(1, 1, valor, conexion);
 			}
 		};
 
 		ActionListener actionListenerButton_12 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tablero[1][2].equals("")) {
-					String valor = getTextField().getText();
-					getBtn_12().setText(valor);
-					jugada(1, 2, valor, conexion);
-				}
+				getBtn_12().setText(valor);
+				jugada(1, 2, valor, conexion);
 			}
 		};
 
 		ActionListener actionListenerButton_20 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tablero[2][0].equals("")) {
-					String valor = getTextField().getText();
-					getBtn_20().setText(valor);
-					jugada(2, 0, valor, conexion);
-				}
+				getBtn_20().setText(valor);
+				jugada(2, 0, valor, conexion);
 			}
 		};
 
 		ActionListener actionListenerButton_21 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tablero[2][1].equals("")) {
-					String valor = getTextField().getText();
-					getBtn_21().setText(valor);
-					jugada(2, 1, valor, conexion);
-				}
+				getBtn_21().setText(valor);
+				jugada(2, 1, valor, conexion);
 			}
 		};
 
 		ActionListener actionListenerButton_22 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tablero[2][2].equals("")) {
-					String valor = getTextField().getText();
-					getBtn_22().setText(valor);
-					jugada(2, 2, valor, conexion);
-				}
+				getBtn_22().setText(valor);
+				jugada(2, 2, valor, conexion);
 			}
 		};
 
@@ -230,6 +220,8 @@ public class Cliente extends JFrame {
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws InterruptedException, IOException, ClassNotFoundException {
+
+		// Cliente construye la interfaz
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -287,13 +279,18 @@ public class Cliente extends JFrame {
 		if (mensaje.equals("cliente")) {
 			JOptionPane.showMessageDialog(new JFrame(), "Jugador inicia la partida", "INICIO DE PARTIDA",
 					JOptionPane.INFORMATION_MESSAGE);
+			setTurno("jugador");
+
 			jugador(conexion);
+
 		}
 
 		// maquina comienza partida
 		if (mensaje.equals("maquina")) {
 			JOptionPane.showMessageDialog(new JFrame(), "La máquina comienza la partida", "INICIO DE PARTIDA",
 					JOptionPane.INFORMATION_MESSAGE);
+
+			setTurno("maquina");
 
 			recibirObjeto(conexion);
 
@@ -314,11 +311,6 @@ public class Cliente extends JFrame {
 		btn_00 = new JButton("");
 		btn_00.setBounds(10, 35, 89, 68);
 		contentPane.add(btn_00);
-
-		textField = new JTextField();
-		textField.setBounds(246, 10, 51, 20);
-		contentPane.add(textField);
-		textField.setColumns(10);
 
 		btn_01 = new JButton("");
 		btn_01.setBounds(109, 35, 89, 68);
@@ -352,23 +344,10 @@ public class Cliente extends JFrame {
 		btn_22.setBounds(208, 193, 89, 68);
 		contentPane.add(btn_22);
 
-		JLabel lblNewLabel = new JLabel("Inserta la figura con la que vas a jugar ");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel.setBounds(10, 11, 226, 16);
-		contentPane.add(lblNewLabel);
-
 		table = new JTable(tablero, columnas);
 		table.setBounds(76, 289, 152, 48);
 		table.getColumnModel().getColumn(0).setPreferredWidth(100);
 		contentPane.add(table);
-	}
-
-	public static JTextField getTextField() {
-		return textField;
-	}
-
-	public static void setTextField(JTextField textField) {
-		Cliente.textField = textField;
 	}
 
 	public static JButton getBtn_00() {
@@ -407,28 +386,12 @@ public class Cliente extends JFrame {
 		return btn_22;
 	}
 
-	public static int getFila() {
-		return fila;
+	public static String getTurno() {
+		return turno;
 	}
 
-	public static void setFila(int fila) {
-		Cliente.fila = fila;
-	}
-
-	public static int getColumna() {
-		return columna;
-	}
-
-	public static void setColumna(int columna) {
-		Cliente.columna = columna;
-	}
-
-	public static String getValor() {
-		return valor;
-	}
-
-	public static void setValor(String valor) {
-		Cliente.valor = valor;
+	public static void setTurno(String turno) {
+		Cliente.turno = turno;
 	}
 
 }
