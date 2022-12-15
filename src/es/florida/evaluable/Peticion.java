@@ -86,81 +86,63 @@ public class Peticion implements Runnable {
 		// Cuando la matriz esta completa
 		if (tablero[0][0] != "" && tablero[0][1] != "" && tablero[0][2] != "" && tablero[1][0] != ""
 				&& tablero[1][1] != "" && tablero[0][2] != "" && tablero[2][0] != "" && tablero[2][1] != ""
-				&& tablero[2][2] != "") {
+				&& tablero[2][2] != "")
 			ganaPartida = "matrizCompleta";
-		}
 
 		// Cuando gana la máquina
 		// Filas
-		if (tablero[0][0].equals("O") && tablero[0][1].equals("O") && tablero[0][2].equals("O")) {
+		if (tablero[0][0].equals("O") && tablero[0][1].equals("O") && tablero[0][2].equals("O"))
 			ganaPartida = "maquinaGana";
-		}
 
-		if (tablero[1][0].equals("O") && tablero[1][1].equals("O") && tablero[1][2].equals("O")) {
+		if (tablero[1][0].equals("O") && tablero[1][1].equals("O") && tablero[1][2].equals("O"))
 			ganaPartida = "maquinaGana";
-		}
 
-		if (tablero[2][0].equals("O") && tablero[2][1].equals("O") && tablero[2][2].equals("O")) {
+		if (tablero[2][0].equals("O") && tablero[2][1].equals("O") && tablero[2][2].equals("O"))
 			ganaPartida = "maquinaGana";
-		}
 
 		// Columnas
-		if (tablero[0][0].equals("O") && tablero[1][0].equals("O") && tablero[2][0].equals("O")) {
+		if (tablero[0][0].equals("O") && tablero[1][0].equals("O") && tablero[2][0].equals("O"))
 			ganaPartida = "maquinaGana";
-		}
 
-		if (tablero[0][1].equals("O") && tablero[1][1].equals("O") && tablero[2][1].equals("O")) {
+		if (tablero[0][1].equals("O") && tablero[1][1].equals("O") && tablero[2][1].equals("O"))
 			ganaPartida = "maquinaGana";
-		}
 
-		if (tablero[0][2].equals("O") && tablero[1][2].equals("O") && tablero[2][2].equals("O")) {
+		if (tablero[0][2].equals("O") && tablero[1][2].equals("O") && tablero[2][2].equals("O"))
 			ganaPartida = "maquinaGana";
-		}
 
 		// Diagonales
-		if (tablero[0][0].equals("O") && tablero[1][1].equals("O") && tablero[2][2].equals("O")) {
+		if (tablero[0][0].equals("O") && tablero[1][1].equals("O") && tablero[2][2].equals("O"))
 			ganaPartida = "maquinaGana";
-		}
 
-		if (tablero[0][2].equals("O") && tablero[1][1].equals("O") && tablero[2][0].equals("O")) {
+		if (tablero[0][2].equals("O") && tablero[1][1].equals("O") && tablero[2][0].equals("O"))
 			ganaPartida = "maquinaGana";
-		}
 
 		// Cuando gana el jugador
 		// Filas
-		if (tablero[0][0].equals("X") && tablero[0][1].equals("X") && tablero[0][2].equals("X")) {
+		if (tablero[0][0].equals("X") && tablero[0][1].equals("X") && tablero[0][2].equals("X"))
 			ganaPartida = "jugadorGana";
-		}
 
-		if (tablero[1][0].equals("X") && tablero[1][1].equals("X") && tablero[1][2].equals("X")) {
+		if (tablero[1][0].equals("X") && tablero[1][1].equals("X") && tablero[1][2].equals("X"))
 			ganaPartida = "jugadorGana";
-		}
 
-		if (tablero[2][0].equals("X") && tablero[2][1].equals("X") && tablero[2][2].equals("X")) {
+		if (tablero[2][0].equals("X") && tablero[2][1].equals("X") && tablero[2][2].equals("X"))
 			ganaPartida = "jugadorGana";
-		}
 
 		// Columnas
-		if (tablero[0][0].equals("X") && tablero[1][0].equals("X") && tablero[2][0].equals("X")) {
+		if (tablero[0][0].equals("X") && tablero[1][0].equals("X") && tablero[2][0].equals("X"))
 			ganaPartida = "jugadorGana";
-		}
 
-		if (tablero[0][1].equals("X") && tablero[1][1].equals("X") && tablero[2][1].equals("X")) {
-			ganaPartida = "jugadorGana";
-		}
+		if (tablero[0][1].equals("X") && tablero[1][1].equals("X") && tablero[2][1].equals("X"))
 
-		if (tablero[0][2].equals("X") && tablero[1][2].equals("X") && tablero[2][2].equals("X")) {
-			ganaPartida = "jugadorGana";
-		}
+			if (tablero[0][2].equals("X") && tablero[1][2].equals("X") && tablero[2][2].equals("X"))
+				ganaPartida = "jugadorGana";
 
 		// diagonales
-		if (tablero[0][0].equals("X") && tablero[1][1].equals("X") && tablero[2][2].equals("X")) {
+		if (tablero[0][0].equals("X") && tablero[1][1].equals("X") && tablero[2][2].equals("X"))
 			ganaPartida = "jugadorGana";
-		}
 
-		if (tablero[0][2].equals("X") && tablero[1][1].equals("X") && tablero[2][0].equals("X")) {
+		if (tablero[0][2].equals("X") && tablero[1][1].equals("X") && tablero[2][0].equals("X"))
 			ganaPartida = "jugadorGana";
-		}
 
 		return ganaPartida;
 
