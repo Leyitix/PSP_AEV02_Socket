@@ -21,12 +21,13 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.SwingConstants;
+import java.awt.Color;
 
 @SuppressWarnings("serial")
 public class Cliente extends JFrame {
 
 	private JPanel contentPane;
-	static JTable table;
 	static JButton btn_00, btn_01, btn_02, btn_10, btn_11, btn_12, btn_20, btn_21, btn_22;
 	static int fila, columna;
 	static String valor = "X";
@@ -37,6 +38,40 @@ public class Cliente extends JFrame {
 
 	String[] columnas = { "1", "2", "3" };
 	static String[][] tablero = { { "", "", "" }, { "", "", "" }, { "", "", "" } };
+
+	public static void ganador(String ganador, Socket conexion) throws IOException {
+		
+		boolean finPartida = false;
+
+		if (ganador.equals("matrizCompleta")) {
+			JOptionPane.showMessageDialog(new JFrame(), "Todas las casillas están ocupadas", "Fin de partida",
+					JOptionPane.INFORMATION_MESSAGE);
+			finPartida = true;
+		} else if (ganador.equals("maquinaGana")) {
+			JOptionPane.showMessageDialog(new JFrame(), "Gana la máquina", "Fin de partida",
+					JOptionPane.INFORMATION_MESSAGE);
+			finPartida = true;
+		} else if (ganador.equals("jugadorGana")) {
+			JOptionPane.showMessageDialog(new JFrame(), "Gana el jugador", "Fin de partida",
+					JOptionPane.INFORMATION_MESSAGE);
+			finPartida = true;
+		}
+		
+		if (finPartida) {
+			getBtn_00().setEnabled(false);
+			getBtn_01().setEnabled(false);
+			getBtn_02().setEnabled(false);
+
+			getBtn_10().setEnabled(false);
+			getBtn_11().setEnabled(false);
+			getBtn_12().setEnabled(false);
+
+			getBtn_20().setEnabled(false);
+			getBtn_21().setEnabled(false);
+			getBtn_22().setEnabled(false);	
+		}
+
+	}
 
 	public static void enviarPosiciones(Socket conexion, int fila, int columna, String valor) {
 		try {
@@ -54,10 +89,50 @@ public class Cliente extends JFrame {
 			pw.write(turno.toString() + "\n");
 			pw.flush();
 
-			System.out.println("SERVIDOR>>> Posiciones enviadas a la maquina: Fila -> " + fila + " // Columna -> "
+			System.out.println("CLIENTE>>> Posiciones enviadas a la maquina: Fila -> " + fila + " // Columna -> "
 					+ columna + " // Valor -> " + valor + " // Turno -> " + getTurno());
-			
-			recibirObjeto(conexion);
+
+			// Cuando la matriz esta completa
+			if (tablero[0][0] != "" && tablero[0][1] != "" && tablero[0][2] != "" && tablero[1][0] != ""
+					&& tablero[1][1] != "" && tablero[0][2] != "" && tablero[2][0] != "" && tablero[2][1] != ""
+					&& tablero[2][2] != "") {
+				JOptionPane.showMessageDialog(new JFrame(), "Todas las casillas están ocupadas", "Fin de partida",
+						JOptionPane.INFORMATION_MESSAGE);
+			} else if (tablero[0][0].equals("O") && tablero[0][1].equals("O") && tablero[0][2].equals("O")) {
+				ganador("maquinaGana", conexion);
+			} else if (tablero[1][0].equals("O") && tablero[1][1].equals("O") && tablero[1][2].equals("O")) {
+				ganador("maquinaGana", conexion);
+			} else if (tablero[2][0].equals("O") && tablero[2][1].equals("O") && tablero[2][2].equals("O")) {
+				ganador("maquinaGana", conexion);
+			} else if (tablero[0][0].equals("O") && tablero[1][0].equals("O") && tablero[2][0].equals("O")) {
+				ganador("maquinaGana", conexion);
+			} else if (tablero[0][1].equals("O") && tablero[1][1].equals("O") && tablero[2][1].equals("O")) {
+				ganador("maquinaGana", conexion);
+			} else if (tablero[0][2].equals("O") && tablero[1][2].equals("O") && tablero[2][2].equals("O")) {
+				ganador("maquinaGana", conexion);
+			} else if (tablero[0][0].equals("O") && tablero[1][1].equals("O") && tablero[2][2].equals("O")) {
+				ganador("maquinaGana", conexion);
+			} else if (tablero[0][2].equals("O") && tablero[1][1].equals("O") && tablero[2][0].equals("O")) {
+				ganador("maquinaGana", conexion);
+			} else if (tablero[0][0].equals("X") && tablero[0][1].equals("X") && tablero[0][2].equals("X")) {
+				ganador("jugadorGana", conexion);
+			} else if (tablero[1][0].equals("X") && tablero[1][1].equals("X") && tablero[1][2].equals("X")) {
+				ganador("jugadorGana", conexion);
+			} else if (tablero[2][0].equals("X") && tablero[2][1].equals("X") && tablero[2][2].equals("X")) {
+				ganador("jugadorGana", conexion);
+			} else if (tablero[0][0].equals("X") && tablero[1][0].equals("X") && tablero[2][0].equals("X")) {
+				ganador("jugadorGana", conexion);
+			} else if (tablero[0][1].equals("X") && tablero[1][1].equals("X") && tablero[2][1].equals("X")) {
+				ganador("jugadorGana", conexion);
+			} else if (tablero[0][2].equals("X") && tablero[1][2].equals("X") && tablero[2][2].equals("X")) {
+				ganador("jugadorGana", conexion);
+			} else if (tablero[0][0].equals("X") && tablero[1][1].equals("X") && tablero[2][2].equals("X")) {
+				ganador("jugadorGana", conexion);
+			} else if (tablero[0][2].equals("X") && tablero[1][1].equals("X") && tablero[2][0].equals("X")) {
+				ganador("jugadorGana", conexion);
+			} else {
+				recibirPosiciones(conexion);
+			}
 
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -66,7 +141,7 @@ public class Cliente extends JFrame {
 		}
 	}
 
-	public static void recibirObjeto(Socket conexion) throws ClassNotFoundException, IOException {
+	public static void recibirPosiciones(Socket conexion) throws ClassNotFoundException, IOException {
 
 		InputStream is = conexion.getInputStream();
 		InputStreamReader isr = new InputStreamReader(is);
@@ -89,11 +164,13 @@ public class Cliente extends JFrame {
 
 		String boton = fila + columna;
 
-		maquina(boton, valor, filaInt, columnInt);
+		maquina(boton, valor, filaInt, columnInt, conexion);
+
+		ganador(turno, conexion);
 
 	}
 
-	public static void maquina(String boton, String valor, int fila, int columna) {
+	public static void maquina(String boton, String valor, int fila, int columna, Socket conexion) throws IOException {
 		// set del valor obtenido desde la maquina en el boton
 		if (boton.equals("00"))
 			getBtn_00().setText(valor);
@@ -115,94 +192,128 @@ public class Cliente extends JFrame {
 			getBtn_22().setText(valor);
 
 		tablero[fila][columna] = valor;
-		table.setVisible(false);
-		table.setVisible(true);
+
 	}
 
 	public static void jugada(int fila, int columna, String valor, Socket conexion) {
 
-		if (tablero[fila][columna].equals("")) {
-			tablero[fila][columna] = valor;
-			table.setVisible(false);
-			table.setVisible(true);
-			enviarPosiciones(conexion, fila, columna, valor);
-		} else {
-			JOptionPane.showMessageDialog(new JFrame(), "Elige otra casilla para realizar tu jugada", "",
-					JOptionPane.INFORMATION_MESSAGE);
-		}
+		tablero[fila][columna] = valor;
+		enviarPosiciones(conexion, fila, columna, valor);
 
+	}
+
+	public static void posicionOcupada() {
+		JOptionPane.showMessageDialog(new JFrame(), "Elige otra casilla para realizar tu jugada", "",
+				JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	public static void jugador(Socket conexion) throws IOException {
 		ActionListener actionListenerButton_00 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getBtn_00().setText(valor);
-				jugada(0, 0, valor, conexion);
+				if (tablero[0][0].equals("")) {
+					getBtn_00().setText(valor);
+					jugada(0, 0, valor, conexion);
+				} else {
+					posicionOcupada();
+				}
+
 			}
 		};
 
 		ActionListener actionListenerButton_01 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getBtn_01().setText(valor);
-				jugada(0, 1, valor, conexion);
+				if (tablero[0][1].equals("")) {
+					getBtn_01().setText(valor);
+					jugada(0, 1, valor, conexion);
+				} else {
+					posicionOcupada();
+				}
 			}
 		};
 
 		ActionListener actionListenerButton_02 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getBtn_02().setText(valor);
-				jugada(0, 2, valor, conexion);
+				if (tablero[0][2].equals("")) {
+					getBtn_02().setText(valor);
+					jugada(0, 2, valor, conexion);
+				} else {
+					posicionOcupada();
+				}
 			}
 		};
 
 		ActionListener actionListenerButton_10 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getBtn_10().setText(valor);
-				jugada(1, 0, valor, conexion);
+				if (tablero[1][0].equals("")) {
+					getBtn_10().setText(valor);
+					jugada(1, 0, valor, conexion);
+				} else {
+					posicionOcupada();
+				}
 			}
 		};
 
 		ActionListener actionListenerButton_11 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getBtn_11().setText(valor);
-				jugada(1, 1, valor, conexion);
+				if (tablero[1][1].equals("")) {
+					getBtn_11().setText(valor);
+					jugada(1, 1, valor, conexion);
+				} else {
+					posicionOcupada();
+				}
 			}
 		};
 
 		ActionListener actionListenerButton_12 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getBtn_12().setText(valor);
-				jugada(1, 2, valor, conexion);
+				if (tablero[1][2].equals("")) {
+					getBtn_12().setText(valor);
+					jugada(1, 2, valor, conexion);
+				} else {
+					posicionOcupada();
+				}
 			}
 		};
 
 		ActionListener actionListenerButton_20 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getBtn_20().setText(valor);
-				jugada(2, 0, valor, conexion);
+				if (tablero[2][0].equals("")) {
+					getBtn_20().setText(valor);
+					jugada(2, 0, valor, conexion);
+				} else {
+					posicionOcupada();
+				}
 			}
 		};
 
 		ActionListener actionListenerButton_21 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getBtn_21().setText(valor);
-				jugada(2, 1, valor, conexion);
+				if (tablero[2][1].equals("")) {
+					getBtn_21().setText(valor);
+					jugada(2, 1, valor, conexion);
+				} else {
+					posicionOcupada();
+				}
 			}
 		};
 
 		ActionListener actionListenerButton_22 = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				getBtn_22().setText(valor);
-				jugada(2, 2, valor, conexion);
+				if (tablero[2][2].equals("")) {
+					getBtn_22().setText(valor);
+					jugada(2, 2, valor, conexion);
+				} else {
+					posicionOcupada();
+				}
 			}
 		};
 
@@ -279,6 +390,7 @@ public class Cliente extends JFrame {
 		if (mensaje.equals("cliente")) {
 			JOptionPane.showMessageDialog(new JFrame(), "Jugador inicia la partida", "INICIO DE PARTIDA",
 					JOptionPane.INFORMATION_MESSAGE);
+
 			setTurno("jugador");
 
 			jugador(conexion);
@@ -292,62 +404,68 @@ public class Cliente extends JFrame {
 
 			setTurno("maquina");
 
-			recibirObjeto(conexion);
+			recibirPosiciones(conexion);
+			// TODO: Cuando empieza la máquina
+			setTurno("jugador");
+			jugador(conexion);
 
 		}
 
 	}
 
 	public Cliente() {
+		setBackground(new Color(255, 255, 255));
 		// el metodo constructor contendrá la interfaz
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 327, 419);
+		setBounds(100, 100, 337, 383);
 		contentPane = new JPanel();
+		contentPane.setBackground(new Color(219, 207, 254));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
 		btn_00 = new JButton("");
-		btn_00.setBounds(10, 35, 89, 68);
+		btn_00.setBounds(10, 74, 89, 68);
 		contentPane.add(btn_00);
 
 		btn_01 = new JButton("");
-		btn_01.setBounds(109, 35, 89, 68);
+		btn_01.setBounds(119, 74, 89, 68);
 		contentPane.add(btn_01);
 
 		btn_02 = new JButton("");
-		btn_02.setBounds(208, 35, 89, 68);
+		btn_02.setBounds(222, 74, 89, 68);
 		contentPane.add(btn_02);
 
 		btn_10 = new JButton("");
-		btn_10.setBounds(10, 114, 89, 68);
+		btn_10.setBounds(10, 153, 89, 68);
 		contentPane.add(btn_10);
 
 		btn_11 = new JButton("");
-		btn_11.setBounds(109, 114, 89, 68);
+		btn_11.setBounds(119, 153, 89, 68);
 		contentPane.add(btn_11);
 
 		btn_12 = new JButton("");
-		btn_12.setBounds(208, 114, 89, 68);
+		btn_12.setBounds(222, 153, 89, 68);
 		contentPane.add(btn_12);
 
 		btn_20 = new JButton("");
-		btn_20.setBounds(10, 193, 89, 68);
+		btn_20.setBounds(10, 232, 89, 68);
 		contentPane.add(btn_20);
 
 		btn_21 = new JButton("");
-		btn_21.setBounds(109, 193, 89, 68);
+		btn_21.setBounds(119, 232, 89, 68);
 		contentPane.add(btn_21);
 
 		btn_22 = new JButton("");
-		btn_22.setBounds(208, 193, 89, 68);
+		btn_22.setBounds(222, 232, 89, 68);
 		contentPane.add(btn_22);
-
-		table = new JTable(tablero, columnas);
-		table.setBounds(76, 289, 152, 48);
-		table.getColumnModel().getColumn(0).setPreferredWidth(100);
-		contentPane.add(table);
+		
+		JLabel lblNewLabel = new JLabel("Tres en raya");
+		lblNewLabel.setFont(new Font("Gill Sans MT", Font.PLAIN, 17));
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel.setBounds(59, 35, 210, 28);
+		contentPane.add(lblNewLabel);
 	}
 
 	public static JButton getBtn_00() {
@@ -393,5 +511,4 @@ public class Cliente extends JFrame {
 	public static void setTurno(String turno) {
 		Cliente.turno = turno;
 	}
-
 }

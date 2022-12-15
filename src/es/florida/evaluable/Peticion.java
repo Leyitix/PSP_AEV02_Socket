@@ -23,14 +23,18 @@ public class Peticion implements Runnable {
 		Peticion.conexion = conexion;
 	}
 
-	public static void enviarObjeto(Socket conexion, int fila, int columna) throws IOException {
+	public static void enviarPosiciones(Socket conexion, int fila, int columna, String quienGana) throws IOException {
 
 		try {
 
 			String filaStr = String.valueOf(fila);
 			String columStr = String.valueOf(columna);
-			String turno = "jugador";
-			setTurno(turno);
+
+			if (quienGana != null) {
+				setTurno(quienGana);
+			} else {
+				setTurno("jugador");
+			}
 
 			OutputStream os = conexion.getOutputStream();
 			PrintWriter pw = new PrintWriter(os);
@@ -43,7 +47,9 @@ public class Peticion implements Runnable {
 			System.err.println("SERVIDOR>>> Posiciones enviadas al jugador: Fila -> " + fila + " // Columna -> "
 					+ columna + " // Valor -> " + valor + " // Turno -> " + getTurno());
 
-		} catch (IOException e1) {
+			recibirPosiciones(conexion);
+
+		} catch (IOException | ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
 
@@ -61,61 +67,130 @@ public class Peticion implements Runnable {
 		String turno = bf.readLine();
 		setTurno(turno);
 
-		System.err.println("SERVIDOR>>> Posiciones recibidas del jugador: Fila -> " + fila + " // Columna -> " + columna
-				+ " // Valor -> " + valor + " // Turno -> " + getTurno());
-
-		int filaInt = Integer.parseInt(fila);
-		int columnInt = Integer.parseInt(columna);
-
-		// Asignar posiciones en el array
-		tablero[filaInt][columnInt] = valor;
-
 		// despues de recibir la tirada del jugador, la maquina continua la partida
-		maquina(conexion);
+		if (fila != null && columna != null && valor != null && turno != null) {
+			System.err.println("SERVIDOR>>> Posiciones recibidas del jugador: Fila -> " + fila + " // Columna -> "
+					+ columna + " // Valor -> " + valor + " // Turno -> " + getTurno());
+
+			int filaInt = Integer.parseInt(fila);
+			int columnInt = Integer.parseInt(columna);
+
+			// Asignar posiciones en el array
+			tablero[filaInt][columnInt] = valor;
+			maquina(conexion);
+		}
+
+	}
+
+	public static String finPartida() throws IOException {
+
+		String ganaPartida = null;
+
+		// Cuando la matriz esta completa
+		if (tablero[0][0] != "" && tablero[0][1] != "" && tablero[0][2] != "" && tablero[1][0] != ""
+				&& tablero[1][1] != "" && tablero[0][2] != "" && tablero[2][0] != "" && tablero[2][1] != ""
+				&& tablero[2][2] != "") {
+			ganaPartida = "matrizCompleta";
+		}
+
+		// Cuando gana la máquina
+		// Filas
+		if (tablero[0][0].equals("O") && tablero[0][1].equals("O") && tablero[0][2].equals("O")) {
+			ganaPartida = "maquinaGana";
+		}
+
+		if (tablero[1][0].equals("O") && tablero[1][1].equals("O") && tablero[1][2].equals("O")) {
+			ganaPartida = "maquinaGana";
+		}
+
+		if (tablero[2][0].equals("O") && tablero[2][1].equals("O") && tablero[2][2].equals("O")) {
+			ganaPartida = "maquinaGana";
+		}
+
+		// Columnas
+		if (tablero[0][0].equals("O") && tablero[1][0].equals("O") && tablero[2][0].equals("O")) {
+			ganaPartida = "maquinaGana";
+		}
+
+		if (tablero[0][1].equals("O") && tablero[1][1].equals("O") && tablero[2][1].equals("O")) {
+			ganaPartida = "maquinaGana";
+		}
+
+		if (tablero[0][2].equals("O") && tablero[1][2].equals("O") && tablero[2][2].equals("O")) {
+			ganaPartida = "maquinaGana";
+		}
+
+		// Diagonales
+		if (tablero[0][0].equals("O") && tablero[1][1].equals("O") && tablero[2][2].equals("O")) {
+			ganaPartida = "maquinaGana";
+		}
+
+		if (tablero[0][2].equals("O") && tablero[1][1].equals("O") && tablero[2][0].equals("O")) {
+			ganaPartida = "maquinaGana";
+		}
+
+		// Cuando gana el jugador
+		// Filas
+		if (tablero[0][0].equals("X") && tablero[0][1].equals("X") && tablero[0][2].equals("X")) {
+			ganaPartida = "jugadorGana";
+		}
+
+		if (tablero[1][0].equals("X") && tablero[1][1].equals("X") && tablero[1][2].equals("X")) {
+			ganaPartida = "jugadorGana";
+		}
+
+		if (tablero[2][0].equals("X") && tablero[2][1].equals("X") && tablero[2][2].equals("X")) {
+			ganaPartida = "jugadorGana";
+		}
+
+		// Columnas
+		if (tablero[0][0].equals("X") && tablero[1][0].equals("X") && tablero[2][0].equals("X")) {
+			ganaPartida = "jugadorGana";
+		}
+
+		if (tablero[0][1].equals("X") && tablero[1][1].equals("X") && tablero[2][1].equals("X")) {
+			ganaPartida = "jugadorGana";
+		}
+
+		if (tablero[0][2].equals("X") && tablero[1][2].equals("X") && tablero[2][2].equals("X")) {
+			ganaPartida = "jugadorGana";
+		}
+
+		// diagonales
+		if (tablero[0][0].equals("X") && tablero[1][1].equals("X") && tablero[2][2].equals("X")) {
+			ganaPartida = "jugadorGana";
+		}
+
+		if (tablero[0][2].equals("X") && tablero[1][1].equals("X") && tablero[2][0].equals("X")) {
+			ganaPartida = "jugadorGana";
+		}
+
+		return ganaPartida;
 
 	}
 
 	public static void maquina(Socket conexion) throws ClassNotFoundException, IOException {
 
 		boolean posicionEncontrada = false;
-		
-		while (posicionEncontrada == false) {
-			
+		String finPartida = null;
+
+		while (posicionEncontrada == false && finPartida == null) {
+
 			fila = (int) (Math.random() * 3);
 			columna = (int) (Math.random() * 3);
-			
+
 			if (tablero[fila][columna].equals("")) {
-				System.out.println("SE HA ENCONTRADO UNA POSICION VALIDA!!!!!!");
 				System.err.println("SERVIDOR >>> Realiza jugada --> Fila: " + fila + " // Columna: " + columna);
 				tablero[fila][columna] = valor.toUpperCase();
-				enviarObjeto(conexion, fila, columna);
-				
+
+				String quienGana = finPartida();
+				enviarPosiciones(conexion, fila, columna, quienGana);
+
 				posicionEncontrada = true;
-			} else {
-				System.out.println("NO SE HA ENCONTRADO UNA POSICION VALIDA!!!!!!");
 			}
-			// TODO: AÑADIR OTRA CONDICION!!!
-			
+
 		}
-			
 
-
-//		while (tablero[fila][columna].equals("")) {
-//
-//			System.err.println("SERVIDOR >>> Realiza jugada --> Fila: " + fila + " // Columna: " + columna);
-//			if (tablero[fila][columna].equals("")) {
-//
-//				tablero[fila][columna] = valor.toUpperCase();
-//				enviarObjeto(conexion, fila, columna);
-//
-//			} else {
-//				fila = (int) (Math.random() * 3);
-//				columna = (int) (Math.random() * 3);
-//			}
-//
-//		}
-
-		// TODO: SI NO SE ENCUENTRA NINGUNA COINCIDENCIA // EVITAR QUE LA APP EXPLOTE :(
 	}
 
 	@Override
@@ -171,9 +246,9 @@ public class Peticion implements Runnable {
 
 				// la maquina recibe la jugada inicial del jugador
 				setTurno("jugador");
-				while (getTurno().equals("jugador")) {
-					recibirPosiciones(conexion);
-				}
+//				while (getTurno().equals("jugador")) {
+				recibirPosiciones(conexion);
+//				}
 
 			}
 			if (inicioPartida.equals("maquina")) {

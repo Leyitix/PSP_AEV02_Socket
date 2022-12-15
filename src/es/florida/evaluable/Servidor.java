@@ -20,7 +20,5 @@ public class Servidor {
             Thread hilo = new Thread(p);
             hilo.start();
 		}
-
 	}
-
 }
