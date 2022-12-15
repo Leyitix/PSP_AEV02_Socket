@@ -4,15 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Peticion implements Runnable {
 
-	static ObjectInputStream inObject;
 	static Socket conexion;
 	static String[][] tablero = { { "", "", "" }, { "", "", "" }, { "", "", "" } };
 	static Integer fila, columna, indiceValor;
@@ -193,6 +190,7 @@ public class Peticion implements Runnable {
 
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void run() {
 
@@ -246,9 +244,7 @@ public class Peticion implements Runnable {
 
 				// la maquina recibe la jugada inicial del jugador
 				setTurno("jugador");
-//				while (getTurno().equals("jugador")) {
 				recibirPosiciones(conexion);
-//				}
 
 			}
 			if (inicioPartida.equals("maquina")) {
@@ -261,9 +257,7 @@ public class Peticion implements Runnable {
 
 				// maquina comienza partida
 				setTurno("maquina");
-				while (getTurno().equals("maquina")) {
-					maquina(conexion);
-				}
+				maquina(conexion);
 
 			}
 

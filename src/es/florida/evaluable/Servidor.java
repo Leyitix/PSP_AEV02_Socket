@@ -6,6 +6,7 @@ import java.net.Socket;
 
 public class Servidor {
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 
 		int puerto = 1234;
