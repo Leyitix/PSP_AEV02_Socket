@@ -41,7 +41,7 @@ public class Cliente extends JFrame {
 	 * se puede continuar. Una vez se ha terminado la partida se deshabilitan los
 	 * botones para que el cliente no pueda seguir jugando y desencadene un error.
 	 * 
-	 * @param String ganador (Se recibe quien ha ganado la partida)
+	 * @param ganador Se recibe quien ha ganado la partida
 	 */
 	public static void ganador(String ganador) throws IOException {
 
@@ -82,10 +82,10 @@ public class Cliente extends JFrame {
 	 * se comprueba si se cumple alguna de las condiciones para terminar la partida.
 	 * Si se cumple alguna condicion se llamara al metodo ganador.
 	 * 
-	 * @param Socket cnexion Se recibe la conexion del socket
-	 * @param int    fila en la que se encuentra el valor
-	 * @param int    columna en la que se encuentra el valor
-	 * @param String valor que se dibuja en el boton correspondiente al cliente
+	 * @param conexion Se recibe la conexion del socket
+	 * @param fila     En la que se encuentra el valor
+	 * @param columna  En la que se encuentra el valor
+	 * @param valor    Que se dibuja en el boton correspondiente al cliente
 	 */
 	public static void enviarPosiciones(Socket conexion, int fila, int columna, String valor) {
 		try {
@@ -161,7 +161,7 @@ public class Cliente extends JFrame {
 	 * maquina para mostrar en la interfaz la jugada de la maquina y despues al
 	 * metodo ganador.
 	 * 
-	 * @param Socket conexion Se recibe el socket
+	 * @param conexion Se recibe el socket
 	 */
 	public static void recibirPosiciones(Socket conexion) throws ClassNotFoundException, IOException {
 
@@ -196,10 +196,10 @@ public class Cliente extends JFrame {
 	 * En este metodo se pinta en los diferentes botones la jugada que hace la
 	 * maquina. Tambien se añade a la matriz la jugada de la maquina.
 	 * 
-	 * @param String boton se recibe el nombre del boton
-	 * @param String valor que se va a pintar en la interfaz
-	 * @param int    fila en la que se encuentra el valor
-	 * @param int    columna en la que se encuentra el valor
+	 * @param boton   Se recibe el nombre del boton
+	 * @param valor   Que se va a pintar en la interfaz
+	 * @param fila    En la que se encuentra el valor
+	 * @param columna En la que se encuentra el valor
 	 */
 	public static void maquina(String boton, String valor, int fila, int columna) throws IOException {
 		// set del valor obtenido desde la maquina en el boton
@@ -230,10 +230,10 @@ public class Cliente extends JFrame {
 	 * En este metodo se recibe la jugada que ha hecho el cliente y se añade a la
 	 * matriz. Por otro lado se llama al metodo enviarPosiciones.
 	 * 
-	 * @param String valor que se va a pintar en la interfaz
-	 * @param int    fila en la que se encuentra el valor
-	 * @param int    columna en la que se encuentra el valor
-	 * @param Socket se recibe el socket
+	 * @param valor    Valor que se va a pintar en la interfaz
+	 * @param fila     En la que se encuentra el valor
+	 * @param columna  En la que se encuentra el valor
+	 * @param conexion Recibe la conexion entre cliente y servidor
 	 */
 	public static void jugada(int fila, int columna, String valor, Socket conexion) {
 		tablero[fila][columna] = valor;
@@ -256,7 +256,7 @@ public class Cliente extends JFrame {
 	 * juega el cliente y se llama al metodo jugada. Si ese boton ya tiene una
 	 * jugada se llamara al metodo posicionOcupada
 	 * 
-	 * @param Socket se recibe el socket
+	 * @param conexion Se recibe la conexion entre cliente y servidor
 	 */
 	public static void jugador(Socket conexion) throws IOException {
 		ActionListener actionListenerButton_00 = new ActionListener() {
@@ -380,7 +380,6 @@ public class Cliente extends JFrame {
 
 	}
 
-	@SuppressWarnings("unused")
 	/**
 	 * Metodo main de la aplicacion Cliente. En este metodo se realizan las
 	 * siguientes acciones: 1. Se construye la interfaz del juego 2. Se realiza la
@@ -390,6 +389,8 @@ public class Cliente extends JFrame {
 	 * quien inicia el juego y envia la respuesta a jugador 6. Si el jugador
 	 * comienza la partida, llamara al metodo jugador 7. Si la maquina inica la
 	 * partida llamara al metodo recibirPosiciones
+	 * 
+	 * @param args[] es un arreglo con los parámetros que reciba por consola
 	 */
 	public static void main(String[] args) throws InterruptedException, IOException, ClassNotFoundException {
 
@@ -419,7 +420,7 @@ public class Cliente extends JFrame {
 
 		String numStr = bf.readLine();
 		System.out.println("CLIENTE>>> Recibe numero aleatorio: " + numStr);
-		int numero = Integer.parseInt(numStr);
+//		int numero = Integer.parseInt(numStr);
 
 		// jugador intenta adivinar si el número obtenido es par
 		int option = JOptionPane.showConfirmDialog(null, "Servidor ha generado un número aleatorio, ¿Crees que es par?",
@@ -473,7 +474,7 @@ public class Cliente extends JFrame {
 	}
 
 	/**
-	 * Metodo constructor de la palicacion Cliente que contendra la interfaz
+	 * Metodo constructor de la aplicacion Cliente que contendra la interfaz
 	 */
 	public Cliente() {
 		setBackground(new Color(255, 255, 255));
@@ -623,7 +624,7 @@ public class Cliente extends JFrame {
 	/**
 	 * Setter del turno de juego
 	 * 
-	 * @param String turno recibe quien tiene el turno de juego
+	 * @param turno Recibe quien tiene el turno de juego
 	 */
 	public static void setTurno(String turno) {
 		Cliente.turno = turno;

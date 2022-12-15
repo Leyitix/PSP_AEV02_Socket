@@ -6,12 +6,12 @@ import java.net.Socket;
 
 public class Servidor {
 
-	@SuppressWarnings("resource")
-
 	/**
 	 * Metodo main de la aplicacion Servidor. En el preparamos el servidor para
 	 * recibir la conexión con el cliente y lanzar un hilo con la peticion del
 	 * cliente a la clase Peticion
+	 * 
+	 * @param args[] es un arreglo con los parámetros que reciba por consola
 	 */
 	public static void main(String[] args) throws IOException {
 

@@ -16,10 +16,25 @@ public class Peticion implements Runnable {
 	static String valor = "O";
 	static String turno;
 
+	/**
+	 * Metodo constructor de la Peticion
+	 * 
+	 * @param conexion Recibe la conexión lanzada por el servidor
+	 */
 	public Peticion(Socket conexion) {
 		Peticion.conexion = conexion;
 	}
 
+	/**
+	 * Metodo que se encarga de enviar las posiciones de la jugada aleatoria que
+	 * realiza la maquina. Una vez enviadas las posiciones se llama al metodo
+	 * recibirPosiciones que prepara la servidor para recibir la jugada del cliente.
+	 * 
+	 * @param conexion String que recibe la conexion entre cliente y servidor
+	 * @param fila int que recibe la fila en la que se encuentra el valor
+	 * @param columna int que en la que se encuentra el valor
+	 * @param quienGana String que recibe el ganador de la partida
+	 */
 	public static void enviarPosiciones(Socket conexion, int fila, int columna, String quienGana) throws IOException {
 
 		try {
@@ -52,6 +67,13 @@ public class Peticion implements Runnable {
 
 	}
 
+	/**
+	 * Metodo que recibe la jugada del cliente y si la jugada no es nula la añade a
+	 * la matriz que se encuentra en el servidor. Una vez añadida se llama al metodo
+	 * maquina que da el turno de la partida a la maquina
+	 * 
+	 * @param conexion Recibe la conexion entre cliente y servidor
+	 */
 	public static void recibirPosiciones(Socket conexion) throws ClassNotFoundException, IOException {
 
 		InputStream is = conexion.getInputStream();
@@ -79,6 +101,12 @@ public class Peticion implements Runnable {
 
 	}
 
+	/**
+	 * Metodo que comprueba si la partida tiene ganador. Si se cumple alguna
+	 * condicion, el metodo devuelve un string con el nombre del ganador
+	 * 
+	 * @return ganaPartida Retorna el String ganador de la partida
+	 */
 	public static String finPartida() throws IOException {
 
 		String ganaPartida = null;
@@ -148,6 +176,17 @@ public class Peticion implements Runnable {
 
 	}
 
+	/**
+	 * Metodo que realiza la jugada de la maquina. Para ello se generan dos numeros
+	 * aleatorios, uno que es la fila en la que se encuentra el valor y el otro para
+	 * la columna. Mientras no se encuentre una posicion valida en la que añadir el
+	 * valor se generaran numeros aleatorios. Cuando haya una posicion valida la
+	 * jugada se añadira a la matriz y se comprobara si hay o no ganador.
+	 * Finalmente, se llamara al metodo enviarPosiciones y se cambiara el estado de
+	 * posicionEncontrada para salir del bucle
+	 * 
+	 * @param conexion Se recibe la conexion entre cliente y servidor
+	 */
 	public static void maquina(Socket conexion) throws ClassNotFoundException, IOException {
 
 		boolean posicionEncontrada = false;
@@ -174,6 +213,14 @@ public class Peticion implements Runnable {
 
 	@SuppressWarnings("unused")
 	@Override
+
+	/**
+	 * Metodo que se ejecuta gracias al hilo lanzalo por la aplicación Servidor. Al
+	 * inicio del hilo se genera un numero aleatorio entre 1 y 10 que se envia al
+	 * cliente. Una vez se recibe la respuesta del cliente, el servidor comunica al
+	 * cliente quien comienza la partida. Si comienza el cliente se llama al metodo
+	 * recibirPosiciones, si comienza la maquina se llama al metodo maquina.
+	 */
 	public void run() {
 
 		String mensaje;
@@ -252,10 +299,20 @@ public class Peticion implements Runnable {
 
 	}
 
+	/**
+	 * Getter del turno de juego
+	 * 
+	 * @return Retorna quien tiene el turno de juego
+	 */
 	public static String getTurno() {
 		return turno;
 	}
 
+	/**
+	 * Setter del turno de juego
+	 * 
+	 * @param turno recibe quien tiene el turno de juego
+	 */
 	public static void setTurno(String turno) {
 		Peticion.turno = turno;
 	}
